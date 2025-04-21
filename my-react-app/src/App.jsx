@@ -1,11 +1,13 @@
+import Greeting from "./greeting";
+
 function App() {
   const name = "React Learner";
   const isLearning = true;
 
   return (
     <div>
-      <h1>Welcome, {name}!</h1>
-      <p>{isLearning ? "You're doing great!" : "Keep going!"}</p>
+      <h1>Hello, {name}!</h1>
+      <Greeting name= "Eishal"/>
     </div>
   );
 }
