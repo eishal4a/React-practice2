@@ -1,40 +1,51 @@
 import { useState } from "react";
-function Greeting(){
-  const [name , setName]= useState("");
-  function handleInputChange(event){setName(event.target.value);
+import {motion} from "framer-motion";
+
+function Greeting() {
+  const [name, setName] = useState("");
+
+  function handleInputChange(event) {
+    setName(event.target.value);
   }
-  function clearName(){
+
+  function clearName() {
     setName("");
   }
-  return(
-    <div style={style.Container}>
-      <h2 style={style.heading}>Hello, {name||"friend"}!</h2>
-      <p style={style.subText}>Welcome to React!</p>
-      <input 
+
+  return (
+    <div style={styles.Container}> 
+    <motion.h2 
+    style={styles.heading}
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    key={name} >
+    Hello, {name || "friend"}</motion.h2>
+      <p style={styles.subtext}>Welcome to React!</p> 
+      <input
         type="text"
         placeholder="Enter text here..."
-        onChange={handleInputChange} 
-        value={name} 
-        style={style.input}      
+        onChange={handleInputChange}
+        value={name}
+        style={styles.input} 
       />
-      <button style={style.button} onClick={clearName}>Clear</button>
-  
-  </div>
+      <button style={styles.button} onClick={clearName}>Clear</button> 
+    </div>
   );
 }
 
-const styles={
-Container:{
-  padding: "2rem",
-  maxWidth: "400px",
-  margin: "2rem auto",
-  textAlign: "center",
-  borderRadius: "10px",
-  backgroundColor: "#f0f4ff",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-},
-heading:{
-  fontSize: "2rem",
+const styles = {
+  Container: {
+    padding: "2rem",
+    maxWidth: "400px",
+    margin: "2rem auto",
+    textAlign: "center",
+    borderRadius: "10px",
+    backgroundColor: "#f0f4ff",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  },
+  heading: {
+    fontSize: "2rem",
     marginBottom: "0.5rem",
     color: "#333",
   },
