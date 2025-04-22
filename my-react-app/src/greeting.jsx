@@ -1,24 +1,16 @@
 import { useState } from "react";
-
-function Greeting() {
-  const [name, setName] = useState("");
-
-  function handleInputChange(event) {
-    setName(event.target.value);
+function Greeting(){
+  const [name , setName]= useState("");
+  function handleInputChange(event){setName(event.target.value);
   }
-
-  return (
+  function clearName(){
+    setName("");
+  }
+  return(
     <div>
-      <h2>Hello, {name || "friend"}!</h2>
-      <p>Welcome to React.</p>
-      <input 
-        type="text" 
-        placeholder="Enter your name" 
-        value={name}
-        onChange={handleInputChange}
-      />
-    </div>
+    <h2>Hello, {name|| "friend"}!</h2>
+    <input type="text" onChange={handleInputChange} placeholder="Enter your name" />
+  </div>
   );
 }
-
 export default Greeting;
