@@ -7,10 +7,57 @@ function Greeting(){
     setName("");
   }
   return(
-    <div>
-    <h2>Hello, {name|| "friend"}!</h2>
-    <input type="text" onChange={handleInputChange} placeholder="Enter your name" />
+    <div style={style.Container}>
+      <h2 style={style.heading}>Hello, {name||"friend"}!</h2>
+      <p style={style.subText}>Welcome to React!</p>
+      <input 
+        type="text"
+        placeholder="Enter text here..."
+        onChange={handleInputChange} 
+        value={name} 
+        style={style.input}      
+      />
+      <button style={style.button} onClick={clearName}>Clear</button>
+  
   </div>
   );
 }
+
+const styles={
+Container:{
+  padding: "2rem",
+  maxWidth: "400px",
+  margin: "2rem auto",
+  textAlign: "center",
+  borderRadius: "10px",
+  backgroundColor: "#f0f4ff",
+  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+},
+heading:{
+  fontSize: "2rem",
+    marginBottom: "0.5rem",
+    color: "#333",
+  },
+  subtext: {
+    color: "#666",
+    marginBottom: "1rem",
+  },
+  input: {
+    padding: "0.5rem 1rem",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "1rem",
+    width: "80%",
+    marginBottom: "1rem",
+  },
+  button: {
+    padding: "0.5rem 1.2rem",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
+};
+
 export default Greeting;
