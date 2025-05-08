@@ -1,0 +1,95 @@
+
+* {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #terminal {
+    background: #000000;
+    border: 2px solid #00ff00;
+    box-shadow:
+      0 0 20px #00ff00,
+      inset 0 0 30px #00ff00;
+    width: 350px;
+    max-width: 95vw;
+    height: 600px;
+    max-height: 95vh;
+    padding: 20px;
+    overflow-y: auto;
+    user-select: none;
+    position: relative;
+  }
+  #output {
+    white-space: pre-wrap;
+    line-height: 1.4em;
+    font-size: 14px;
+    height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  #input-line {
+    display: flex;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  #prompt {
+    user-select: none;
+    color: #00ff00;
+  }
+  #cmdInput {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    caret-color: #00ff00;
+  }
+  /* Blinking Cursor */
+  @keyframes blink {
+    0%, 50% {
+      opacity: 1;
+    }
+    51%, 100% {
+      opacity: 0;
+    }
+  }
+  #cursor {
+    font-weight: bold;
+    font-size: 14px;
+    background-color: #00ff00;
+    margin-left: 2px;
+    animation: blink 1s step-start 0s infinite;
+    align-self: center;
+    width: 8px;
+    height: 18px;
+  }
+  /* Scrollbar styling for modern browsers */
+  #output::-webkit-scrollbar {
+    width: 8px;
+  }
+  #output::-webkit-scrollbar-thumb {
+    background-color: #00ff00aa;
+    border-radius: 4px;
+  }
+  /* Matrix rain background behind terminal - subtle */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: black;
+    background: radial-gradient(ellipse at center, #001100 0%, #000000 80%);
+  }
