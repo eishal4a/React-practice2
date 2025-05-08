@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberSec AI Terminal v2.0</title>
+    <style>
+        :root {
+            --hacker-green: #00ff00;
+            --hacker-red: #ff0033;
+            --hacker-blue: #0066ff;
+            --dark-bg: #0a0a0a;
+            --terminal-bg: #121212;
+            --terminal-border: #00ff00;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--hacker-green);
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* ----- Login Screen ----- */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box {
+            border: 1px solid var(--terminal-border);
+            padding: 2rem;
+            width: 450px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            background-color: rgba(10, 10, 10, 0.8);
+            z-index: 2;
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-shadow: 0 0 5px var(--hacker-green);
+            color: var(--hacker-green);
+        }
+        .login-input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            background: transparent;
+            border: 1px solid var(--terminal-border);
+            color: var(--hacker-green);
+            font-size: 1rem;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--terminal-border);
+            color: var(--hacker-green);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .login-btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+        }
+        /* Matrix animation */
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.15;
+        }
+        /* ----- Main Terminal ----- */
+        .terminal-container {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+            background-color: var(--terminal-bg);
+        }
+        .terminal-header {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--terminal-border);
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .terminal-body {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .chat-message {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .user-input {
+            display: flex;
+            padding: 0.8rem;
+            border-top: 1px solid var(--terminal-border);
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        #userMessage {
+            flex-grow: 1;
+            background: transparent;
+            border: 1px solid var(--terminal-border);
+            color: var(--hacker-green);
+            padding: 0.8rem;
+            font-size: 1rem;
+        }
+        #sendMessage {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--terminal-border);
+            color: var(--hacker-green);
+            padding: 0 1.5rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-weight: bold;
+        }
+        #sendMessage:hover {
+            background: rgba(0, 255, 0, 0.3);
+        }
+        /* Terminal text colors */
+        .sys-msg {
+            color: var(--hacker-blue);
+        }
+        .ai-msg {
+            color: var(--hacker-green);
+        }
+        .error-msg {
+            color: var(--hacker-red);
+        }
+        .warning-msg {
+            color: #ffcc00;
+        }
+        .success-msg {
+            color: #00cc66;
+        }
+        /* Blinking cursor */
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        /* Terminal tabs */
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid var(--terminal-border);
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-right: 1px solid var(--terminal-border);
+        }
+        .tab.active {
+            background-color: rgba(0, 255, 0, 0.1);
+            font-weight: bold;
+        }
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin: 0.5rem 0;
+        }
+        .progress-bar {
+            height: 4px;
+            background-color: var(--hacker-green);
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <canvas id="matrixCanvas" class="matrix-bg"></canvas>
+        <div class="login-box">
+            <h1 class="login-title">CYBERSEC AI TERMINAL v2.0</h1>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--hacker-blue);">:: Restricted Access ::</p>
+            <input type="text" id="loginUsername" class="login-input" placeholder="Username" required>
+            <input type="password" id="loginPassword" class="login-input" placeholder="Password" required>
+            <button id="loginBtn" class="login-btn">INITIALIZE SYSTEM</button>
+            <p id="loginMessage" style="margin-top: 1rem; text-align: center; color: var(--hacker-red);"></p>
+        </div>
+    </div>
+
+    <!-- Main Terminal (Hidden until login) -->
+    <div class="terminal-container" id="terminalScreen">
+        <div class="tab-container">
+            <div class="tab active" data-tab="main">MAIN TERMINAL</div>
+            <div class="tab" data-tab="network">NETWORK SCAN</div>
+            <div class="tab" data-tab="crypto">CRYPTO TOOLS</div>
+            <div class="tab" data-tab="settings">SYSTEM SETTINGS</div>
+        </div>
+        
+        <div class="terminal-header">
+            <div>CYBERSEC AI v2.4.1 | STATUS: <span id="connectionStatus" class="success-msg">SECURE</span></div>
+            <div>USER: <span id="currentUser">ADMIN</span> | ACCESS: <span class="success-msg">ROOT</span></div>
+        </div>
+        
+        <div class="terminal-body" id="chatWindow">
+            <div class="chat-message sys-msg">SYSTEM: Initializing secure connection...</div>
+            <div class="chat-message sys-msg">SYSTEM: Establishing encrypted tunnel (AES-256)...</div>
+            <div class="chat-message sys-msg">SYSTEM: Connection established at <span id="currentTime"></span></div>
+            <div class="chat-message ai-msg">AI: Welcome back, ADMIN. System ready for commands.</div>
+            <div class="chat-message ai-msg">AI: Type 'help' for available commands or 'menu' for interactive mode.</div>
+        </div>
+        
+        <div class="user-input">
+            <input type="text" id="userMessage" placeholder="Enter command..." autocomplete="off">
+            <button id="sendMessage">EXECUTE</button>
+        </div>
+    </div>
+
+    <script>
+        // Matrix background animation
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const symbols = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
+        const alphabet = katakana + latin + nums + symbols;
+        
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const rainDrops = [];
+        
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+        
+        const drawMatrix = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff00';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+        
+        setInterval(drawMatrix, 30);
+
+        // Login System
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginMessage = document.getElementById('loginMessage');
+            
+            if (username === "Kha" && password === "4247") {
+                // Simulate loading
+                loginMessage.textContent = "ACCESS GRANTED: Initializing system...";
+                loginMessage.style.color = "var(--hacker-green)";
+                
+                setTimeout(() => {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('terminalScreen').style.display = 'flex';
+                    updateClock();
+                    setInterval(updateClock, 1000);
+                    document.getElementById('userMessage').focus();
+                }, 1500);
+            } else {
+                loginMessage.textContent = "! ACCESS DENIED: Invalid credentials !";
+                loginMessage.style.color = "var(--hacker-red)";
+            }
+        });
+
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString();
+        }
+
+        // Tab system
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                addToTerminal(`SYSTEM: Switched to ${tab.textContent} module`, 'sys-msg');
+            });
+        });
+
+        // Enhanced Chatbot
+        document.getElementById('sendMessage').addEventListener('click', processCommand);
+        document.getElementById('userMessage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') processCommand();
+        });
+
+        function processCommand() {
+            const userInput = document.getElementById('userMessage').value.trim();
+            const chatWindow = document.getElementById('chatWindow');
+            
+            if (!userInput) return;
+            
+            // Add user message
+            addToTerminal(`USER: ${userInput}`);
+            
+            // Process command
+            const cmd = userInput.toLowerCase();
+            let response = "";
+            let responseClass = "ai-msg";
+            
+            if (cmd === 'help' || cmd === '?') {
+                response = `AVAILABLE COMMANDS:
+help/?       - Show this help
+clear        - Clear terminal
+menu         - Interactive menu
+scan         - Network scanning tools
+vuln         - Vulnerability assessment
+encrypt      - Encryption tools
+decrypt      - Decryption tools
+ddos         - DDoS simulation (demo)
+hash         - Hash generator
+exit/logout  - End session
+
+For module-specific help, type 'help <module>'`;
+            } 
+            else if (cmd === 'clear') {
+                chatWindow.innerHTML = '';
+                document.getElementById('userMessage').value = '';
+                return;
+            }
+            else if (cmd === 'menu') {
+                response = `INTERACTIVE MENU:
+1. Network Tools
+2. Security Tools
+3. Crypto Tools
+4. System Info
+5. Exit
+
+Enter your choice [1-5]:`;
+                responseClass = "sys-msg";
+            }
+            else if (cmd === 'scan') {
+                simulateScan();
+                document.getElementById('userMessage').value = '';
+                return;
+            }
+            else if (cmd === 'vuln') {
+                response = `VULNERABILITY ASSESSMENT TOOL:
+[!] Scanning for common vulnerabilities...
+[+] Found 3 potential vulnerabilities:
+    1. SQL Injection possible (Login form)
+    2. XSS vulnerability detected (Contact page)
+    3. Outdated jQuery version (1.11.1)
+
+Use 'exploit <num>' to test vulnerabilities (demo)`;
+            }
+            else if (cmd.startsWith('exploit')) {
+                const exploitNum = cmd.split(' ')[1];
+                if (exploitNum === '1') {
+                    simulateProgress("Exploiting SQL Injection", 85, () => {
+                        addToTerminal("SUCCESS: Bypassed authentication (simulated)", "success-msg");
+                        addToTerminal("WARNING: This is a simulation only. Real hacking is illegal.", "warning-msg");
+                    });
+                } else if (exploitNum === '2') {
+                    simulateProgress("Exploiting XSS Vulnerability", 60, () => {
+                        addToTerminal("SUCCESS: Cookie captured (simulated)", "success-msg");
+                        addToTerminal("WARNING: This is a simulation only. Real hacking is illegal.", "warning-msg");
+                    });
+                } else {
+                    response = "ERROR: Invalid exploit number. Use 'vuln' to list vulnerabilities.";
+                    responseClass = "error-msg";
+                }
+            }
+            else if (cmd === 'ddos') {
+                simulateProgress("Launching DDoS Simulation", 95, () => {
+                    addToTerminal("SUCCESS: Target unresponsive (simulated)", "success-msg");
+                    addToTerminal("WARNING: DDoS attacks are illegal in most jurisdictions.", "error-msg");
+                });
+            }
+            else if (cmd === 'hash') {
+                response = `HASH GENERATOR:
+Enter text to hash (e.g., 'hash password123'):
+Available algorithms: md5, sha1, sha256 (default)`;
+            }
+            else if (cmd.startsWith('hash ')) {
+                const text = cmd.substring(5);
+                if (text) {
+                    response = `HASH RESULTS:
+MD5:    ${simulateHash(text, 'md5')}
+SHA1:   ${simulateHash(text, 'sha1')}
+SHA256: ${simulateHash(text, 'sha256')}`;
+                } else {
+                    response = "ERROR: Please specify text to hash";
+                    responseClass = "error-msg";
+                }
+            }
+            else if (cmd === 'encrypt') {
+                response = `ENCRYPTION TOOL:
+Enter text to encrypt (e.g., 'encrypt secret message'):
+Available algorithms: aes-256, rsa-2048`;
+            }
+            else if (cmd.startsWith('encrypt ')) {
+                const text = cmd.substring(8);
+                if (text) {
+                    simulateProgress(`Encrypting with AES-256`, 75, () => {
+                        addToTerminal(`ENCRYPTED: ${simulateEncrypt(text)}`, "success-msg");
+                    });
+                    document.getElementById('userMessage').value = '';
+                    return;
+                } else {
+                    response = "ERROR: Please specify text to encrypt";
+                    responseClass = "error-msg";
+                }
+            }
+            else if (cmd === 'decrypt') {
+                response = `DECRYPTION TOOL:
+Enter ciphertext to decrypt (e.g., 'decrypt U2FsdGVkX1...'):
+Note: Requires proper key for real decryption`;
+            }
+            else if (cmd === 'exit' || cmd === 'logout') {
+                response = "SYSTEM: Ending session...";
+                responseClass = "sys-msg";
+                setTimeout(() => {
+                    document.getElementById('terminalScreen').style.display = 'none';
+                    document.getElementById('loginScreen').style.display = 'flex';
+                    document.getElementById('loginUsername').value = '';
+                    document.getElementById('loginPassword').value = '';
+                    document.getElementById('loginMessage').textContent = '';
+                    chatWindow.innerHTML = `
+                        <div class="chat-message sys-msg">SYSTEM: Initializing secure connection...</div>
+                        <div class="chat-message sys-msg">SYSTEM: Establishing encrypted tunnel (AES-256)...</div>
+                        <div class="chat-message sys-msg">SYSTEM: Connection established at <span id="currentTime"></span></div>
+                        <div class="chat-message ai-msg">AI: Welcome back, ADMIN. System ready for commands.</div>
+                        <div class="chat-message ai-msg">AI: Type 'help' for available commands or 'menu' for interactive mode.</div>
+                    `;
+                    updateClock();
+                }, 1000);
+            }
+            else {
+                response = `ERROR: Unknown command '${userInput}'. Type 'help' for available commands.`;
+                responseClass = "error-msg";
+            }
+            
+            if (response) {
+                addToTerminal(response, responseClass);
+            }
+            document.getElementById('userMessage').value = '';
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function addToTerminal(message, className = "") {
+            const chatWindow = document.getElementById('chatWindow');
+            const msgElement = document.createElement('div');
+            msgElement.className = `chat-message ${className}`;
+            msgElement.textContent = message;
+            chatWindow.appendChild(msgElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function simulateScan() {
+            addToTerminal("NETWORK SCAN INITIALIZED...", "sys-msg");
+            
+            setTimeout(() => {
+                addToTerminal("Scanning network... 10%", "sys-msg");
+            }, 500);
+            
+            setTimeout(() => {
+                addToTerminal("Discovered 3 active hosts... 35%", "sys-msg");
+            }, 1500);
+            
+            setTimeout(() => {
+                addToTerminal("Port scanning... 65%", "sys-msg");
+            }, 2500);
+            
+            setTimeout(() => {
+                addToTerminal("SCAN COMPLETE: Found 3 hosts", "success-msg");
+                addToTerminal(`HOST DETAILS:
+1. 192.168.1.1   - Router (Open ports: 80, 443)
+2. 192.168.1.15  - Workstation (Open ports: 22, 3389)
+3. 192.168.1.100 - Server (Open ports: 21, 80, 443, 3306)
+
+Use 'scan <host>' for detailed analysis`, "ai-msg");
+            }, 3500);
+        }
+
+        function simulateProgress(message, maxPercent, callback) {
+            let percent = 0;
+            const progressId = "progress-" + Date.now();
+            
+            addToTerminal(`${message}... 0%`, "sys-msg");
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress-container';
+            progressContainer.innerHTML = `<div id="${progressId}" class="progress-bar"></div>`;
+            document.getElementById('chatWindow').appendChild(progressContainer);
+            
+            const interval = setInterval(() => {
+                percent += Math.floor(Math.random() * 5) + 1;
+                if (percent >= maxPercent) {
+                    percent = maxPercent;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressContainer.remove();
+                        if (callback) callback();
+                    }, 300);
+                }
+                document.getElementById(progressId).style.width = percent + '%';
+                const lastMsg = document.querySelector('#chatWindow .sys-msg:last-child');
+                if (lastMsg) {
+                    lastMsg.textContent = `${message}... ${percent}%`;
+                }
+            }, 100);
+        }
+
+        function simulateHash(text, algorithm) {
+            // Not real hashing - just for simulation
+            const fakeHashes = {
+                md5: '5f4dcc3b5aa765d61d8327deb882cf99',
+                sha1: '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8',
+                sha256: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'
+            };
+            
+            // Change slightly based on input for demo purposes
+            if (text === 'password123') return fakeHashes[algorithm];
+            return fakeHashes[algorithm].split('').reverse().join('').substring(0, 32);
+        }
+
+        function simulateEncrypt(text) {
+            // Not real encryption - just for simulation
+            const prefix = "U2FsdGVkX1";
+            const randomChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            let result = prefix;
+            for (let i = 0; i < 20; i++) {
+                result += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+            }
+            return result + "==";
+        }
+    </script>
+</body>
+</html>
