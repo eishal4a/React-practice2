@@ -41,13 +41,14 @@
     white-space: pre-wrap;
     line-height: 1.4em;
     font-size: 14px;
-    height: 540px;
+    height: 500px;
     overflow-y: auto;
     scrollbar-width: thin;
   }
   #input-line {
     display: flex;
     font-size: 14px;
+    margin-top: 5px;
   }
   #prompt {
     user-select: none;
@@ -117,8 +118,8 @@
     const inputElem = document.getElementById('cmdInput');
     const promptStr = '> ';
     const commands = {
-      help: `Available commands:\n help - Display this help text\n hack - Start hacking simulation\n clear - Clear terminal\n about - About this terminal\n try typing a question or phrase to get answers.`,
-      about: `Hacking Terminal v1.1\nCreated by BLACKBOXAI\nSimulated hacking environment with Q&A feature.`,
+      help: `Available commands:\n help - Display this help text\n hack - Start hacking simulation\n clear - Clear terminal\n about - About this terminal\n wifi - Show network connection details (limited browser info)\n wifiapi - Fetch WiFi data from external API\n try typing a question or phrase to get answers.`,
+      about: `Hacking Terminal v1.3\nCreated by BLACKBOXAI\nSimulated hacking environment with Q&A, WiFi info, and API fetch feature.`,
     };
     let hackLines = [
       "Initializing hack sequence...",
@@ -174,6 +175,51 @@
       }
     }
 
+    // Get WiFi/network connection info using Network Information API
+    function getWiFiInfo(){
+      const navConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if(!navConn){
+        return "Network Information API not supported in this browser.";
+      }
+      let infoStr = "Network connection details:\n";
+      infoStr += `Type: ${navConn.type || 'unknown'}\n`;
+      infoStr += `Effective type: ${navConn.effectiveType || 'unknown'}\n`;
+      infoStr += `Downlink speed: ${navConn.downlink || 'unknown'} Mbps\n`;
+      infoStr += `Round-trip time: ${navConn.rtt || 'unknown'} ms\n`;
+      infoStr += `Save data mode: ${navConn.saveData ? 'Yes' : 'No'}`;
+      return infoStr;
+    }
+
+    // Fetch WiFi data from external API (user needs to replace apiUrl with real endpoint)
+    async function fetchWiFiDataFromAPI(){
+      const apiUrl = 'https://your-api.example.com/wifi'; // TODO replace with actual API URL
+
+      writeLine("Fetching WiFi data from API...");
+
+      try {
+        const response = await fetch(apiUrl, { method: 'GET', cache: 'no-cache' });
+        if(!response.ok){
+          writeLine(`API returned error: ${response.status} ${response.statusText}`);
+          return;
+        }
+        const data = await response.json();
+
+        writeLine("WiFi Data from API:");
+        if(typeof data === 'object'){
+          // Pretty print data object
+          for(const key in data){
+            if(Object.hasOwnProperty.call(data, key)){
+              writeLine(`  ${key}: ${data[key]}`);
+            }
+          }
+        } else {
+          writeLine(String(data));
+        }
+      } catch(error) {
+        writeLine("Error fetching WiFi data from API: " + error.message);
+      }
+    }
+
     // Attempt to answer user's question using knowledge base
     function getAnswer(input){
       input = input.toLowerCase().trim();
@@ -220,6 +266,12 @@
           writeLine("Starting hack...");
           setTimeout(simulateHack, 1000);
         }
+      } else if(cmdLower === 'wifi'){
+        const wifiInfo = getWiFiInfo();
+        writeLine(wifiInfo);
+      } else if(cmdLower === 'wifiapi'){
+        // Fetch data from external API
+        fetchWiFiDataFromAPI();
       } else {
         // Treat as question - answer or default
         const answer = getAnswer(cmd);
