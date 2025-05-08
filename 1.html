@@ -3,18 +3,203 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Hacking Terminal</title>
-<link rel="stylesheet" href="1.css" />
+<title>Hacker Chatbot</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #00ff00;
+  }
+  #chat-container {
+    width: 350px;
+    max-width: 95vw;
+    height: 600px;
+    max-height: 95vh;
+    background-color: #000;
+    border: 2px solid #00ff00;
+    box-shadow:
+      0 0 20px #00ff00,
+      inset 0 0 30px #00ff00;
+    display: flex;
+    flex-direction: column;
+  }
+  #chat-header {
+    padding: 10px;
+    border-bottom: 1px solid #00ff00;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 1px;
+    user-select: none;
+  }
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    color: #00ff00;
+  }
+  .message {
+    max-width: 80%;
+    margin-bottom: 12px;
+    line-height: 1.4em;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 15px;
+    word-wrap: break-word;
+  }
+  .user-message {
+    background: #004400;
+    color: #00ff00;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+  .bot-message {
+    background: #002200;
+    color: #00ff00;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+  }
+  #chat-input-area {
+    border-top: 1px solid #00ff00;
+    display: flex;
+    padding: 6px 10px;
+  }
+  #input-text {
+    flex: 1;
+    background: transparent;
+    border: 1px solid #00ff00;
+    border-radius: 10px;
+    color: #00ff00;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 12px;
+    outline: none;
+    caret-color: #00ff00;
+  }
+  #send-btn {
+    margin-left: 8px;
+    background: #00ff00;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 10px;
+    user-select: none;
+    transition: background 0.3s ease;
+  }
+  #send-btn:hover {
+    background: #00cc00;
+  }
+  /* Scrollbar styling */
+  #chat-messages::-webkit-scrollbar {
+    width: 8px;
+  }
+  #chat-messages::-webkit-scrollbar-thumb {
+    background-color: #00ff0077;
+    border-radius: 4px;
+  }
+  /* Mobile adjustments */
+  @media(max-width: 400px) {
+    #chat-container {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+  }
+</style>
 </head>
 <body>
-<div id="terminal" role="main" aria-label="Hacking terminal">
-  <div id="output" aria-live="polite" aria-atomic="false"></div>
-  <div id="input-line">
-    <span id="prompt">&gt; </span>
-    <input id="cmdInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command line input" />
-    <div id="cursor" aria-hidden="true"></div>
+  <div id="chat-container" role="main" aria-label="Hacker Chatbot">
+    <div id="chat-header" aria-live="polite">Hacker Chatbot</div>
+    <div id="chat-messages" aria-live="polite" aria-atomic="false"></div>
+    <form id="chat-input-area" aria-label="Message input">
+      <input type="text" id="input-text" placeholder="Type your message..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Chat message input" required />
+      <button type="submit" id="send-btn" aria-label="Send message">Send</button>
+    </form>
   </div>
-</div>
-<script src="1.js"></script>
+
+<script>
+  (function() {
+    const chatMessages = document.getElementById('chat-messages');
+    const inputText = document.getElementById('input-text');
+    const chatForm = document.getElementById('chat-input-area');
+
+    // Append a message bubble
+    function appendMessage(text, sender = 'bot') {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+      messageDiv.textContent = text;
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Sample simple chatbot replies for demonstration
+    function botReply(message) {
+      const msg = message.toLowerCase().trim();
+
+      if(msg.includes('hello') || msg.includes('hi')) {
+        return "Hello! I'm your hacker assistant. How can I help you today?";
+      }
+      if(msg.includes('who are you')) {
+        return "I'm a hacker-themed chatbot simulation created by BLACKBOXAI.";
+      }
+      if(msg.includes('hack')) {
+        return "Hacking is all about exploring systems. Remember, use your powers responsibly!";
+      }
+      if(msg.includes('time')) {
+        return "Current time is " + new Date().toLocaleTimeString() + ".";
+      }
+      if(msg.includes('wifi')) {
+        return "Sorry, I can't access WiFi info from here. But you can ask me other hacking questions!";
+      }
+      if(msg.includes('help')) {
+        return "You can ask me anything related to hacking simulation or the terminal.";
+      }
+      if(msg === '') {
+        return "Please type something so I can assist you!";
+      }
+      // Default response (simulate some thinking delay)
+      return "I see. Tell me more or ask something else.";
+    }
+
+    // Handle form submit (user sends message)
+    chatForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const userMessage = inputText.value.trim();
+      if(!userMessage) return;
+
+      appendMessage(userMessage, 'user');
+      inputText.value = '';
+      inputText.disabled = true;
+      // Simulate typing delay for bot response
+      setTimeout(() => {
+        const reply = botReply(userMessage);
+        appendMessage(reply, 'bot');
+        inputText.disabled = false;
+        inputText.focus();
+      }, 800);
+    });
+
+    // Initial greeting
+    appendMessage("Welcome to the Hacker Chatbot. Say hi!");
+  })();
+</script>
+
 </body>
 </html>
+</content>
+</create_file>
