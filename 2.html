@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hacker Terminal</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+    #terminal {
+      white-space: pre-wrap;
+      line-height: 1.4;
+      min-height: 80vh;
+    }
+    input {
+      background: black;
+      color: #00FF00;
+      border: none;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1em;
+      width: 100%;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal">
+    Welcome to HackSim v1.0\nType a command:
+  </div>
+  <input id="input" autofocus placeholder=">>> Type a command" />
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('input');
+
+    const responses = {
+      "help": "Available commands: help, scan, status, exit",
+      "scan": "Scanning network...\nFound 2 vulnerable devices.",
+      "status": "System status: SECURE\nFirewall: ACTIVE\nIntrusion attempts: 0",
+      "exit": "Session ended. Goodbye hacker.",
+    };
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        const command = input.value.trim().toLowerCase();
+        terminal.innerText += `\n>>> ${command}`;
+
+        if (responses[command]) {
+          terminal.innerText += `\n${responses[command]}`;
+        } else {
+          terminal.innerText += "\nUnknown command. Type 'help' for a list.";
+        }
+
+        input.value = "";
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>

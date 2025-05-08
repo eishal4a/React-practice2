@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Hacking Terminal</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #terminal {
+    background: #000000;
+    border: 2px solid #00ff00;
+    box-shadow:
+      0 0 20px #00ff00,
+      inset 0 0 30px #00ff00;
+    width: 350px;
+    max-width: 95vw;
+    height: 600px;
+    max-height: 95vh;
+    padding: 20px;
+    overflow-y: auto;
+    user-select: none;
+    position: relative;
+  }
+  #output {
+    white-space: pre-wrap;
+    line-height: 1.4em;
+    font-size: 14px;
+    height: 540px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  #input-line {
+    display: flex;
+    font-size: 14px;
+  }
+  #prompt {
+    user-select: none;
+    color: #00ff00;
+  }
+  #cmdInput {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    outline: none;
+    flex: 1;
+    font-family: inherit;
+    font-size: 14px;
+    caret-color: #00ff00;
+  }
+  /* Blinking Cursor */
+  @keyframes blink {
+    0%, 50% {
+      opacity: 1;
+    }
+    51%, 100% {
+      opacity: 0;
+    }
+  }
+  #cursor {
+    font-weight: bold;
+    font-size: 14px;
+    background-color: #00ff00;
+    margin-left: 2px;
+    animation: blink 1s step-start 0s infinite;
+    align-self: center;
+    width: 8px;
+    height: 18px;
+  }
+  /* Scrollbar styling for modern browsers */
+  #output::-webkit-scrollbar {
+    width: 8px;
+  }
+  #output::-webkit-scrollbar-thumb {
+    background-color: #00ff00aa;
+    border-radius: 4px;
+  }
+  /* Matrix rain background behind terminal - subtle */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background: black;
+    background: radial-gradient(ellipse at center, #001100 0%, #000000 80%);
+  }
+</style>
+</head>
+<body>
+<div id="terminal" role="main" aria-label="Hacking terminal">
+  <div id="output" aria-live="polite" aria-atomic="false"></div>
+  <div id="input-line">
+    <span id="prompt">&gt; </span>
+    <input id="cmdInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Command line input" />
+    <div id="cursor" aria-hidden="true"></div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const outputElem = document.getElementById('output');
+    const inputElem = document.getElementById('cmdInput');
+    const promptStr = '> ';
+    const commands = {
+      help: `Available commands:\n help - Display this help text\n hack - Start hacking simulation\n clear - Clear terminal\n about - About this terminal\n try typing a question or phrase to get answers.`,
+      about: `Hacking Terminal v1.1\nCreated by BLACKBOXAI\nSimulated hacking environment with Q&A feature.`,
+    };
+    let hackLines = [
+      "Initializing hack sequence...",
+      "Connecting to target system...",
+      "Breaching firewall...",
+      "Bypassing security protocols...",
+      "Downloading sensitive data...",
+      "Injecting malicious code...",
+      "Hack complete! Data exfiltrated.",
+    ];
+    let hackIndex = 0;
+    let hacking = false;
+
+    // Simple Q&A knowledge base
+    const knowledgeBase = {
+      "who are you": "I am a simulated hacking terminal created for fun.",
+      "what is hacking": "Hacking is the act of exploring computer systems and networks, sometimes to find vulnerabilities.",
+      "how to hack": "Sorry, I can't help with that. Remember to use your skills responsibly!",
+      "what time is it": () => {
+        return new Date().toLocaleTimeString();
+      },
+      "hello": "Hello! How can I assist your hacking simulation today?",
+      "help": commands.help,
+      "about": commands.about,
+    };
+
+    // Scroll output to bottom helper
+    function scrollOutput(){
+      outputElem.scrollTop = outputElem.scrollHeight;
+    }
+
+    // Write line to output
+    function writeLine(text){
+      outputElem.textContent += text + "\n";
+      scrollOutput();
+    }
+
+    // Clear output
+    function clearOutput(){
+      outputElem.textContent = '';
+    }
+
+    // Simulate hacking sequence with delays
+    function simulateHack(){
+      if(hackIndex < hackLines.length){
+        writeLine(hackLines[hackIndex]);
+        hackIndex++;
+        setTimeout(simulateHack, 1500);
+      } else {
+        hacking = false;
+        hackIndex = 0;
+        writeLine("\n> Hack sequence complete. Type 'help' for commands.");
+      }
+    }
+
+    // Attempt to answer user's question using knowledge base
+    function getAnswer(input){
+      input = input.toLowerCase().trim();
+      if(knowledgeBase.hasOwnProperty(input)){
+        const answer = knowledgeBase[input];
+        if(typeof answer === "function"){
+          return answer();
+        }
+        return answer;
+      }
+      // Try partial matching keywords
+      for(const key in knowledgeBase){
+        if(input.includes(key)){
+          const answer = knowledgeBase[key];
+          if(typeof answer === "function"){
+            return answer();
+          }
+          return answer;
+        }
+      }
+      return "Sorry, I don't understand that command or question. Type 'help' for options.";
+    }
+
+    // Handle command input
+    function handleCommand(cmd){
+      cmd = cmd.trim();
+      if(cmd.length === 0) return;
+
+      writeLine(promptStr + cmd);
+      const cmdLower = cmd.toLowerCase();
+
+      if(cmdLower === 'help'){
+        writeLine(commands.help);
+      } else if(cmdLower === 'clear'){
+        clearOutput();
+      } else if(cmdLower === 'about'){
+        writeLine(commands.about);
+      } else if(cmdLower === 'hack'){
+        if(hacking){
+          writeLine("Hack sequence already running...");
+        } else {
+          hacking = true;
+          hackIndex = 0;
+          writeLine("Starting hack...");
+          setTimeout(simulateHack, 1000);
+        }
+      } else {
+        // Treat as question - answer or default
+        const answer = getAnswer(cmd);
+        writeLine(answer);
+      }
+      scrollOutput();
+    }
+
+    // Input event listeners
+    inputElem.focus();
+    inputElem.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        const cmd = inputElem.value;
+        inputElem.value = '';
+        handleCommand(cmd);
+      } else if(e.key === 'ArrowUp' || e.key === 'ArrowDown'){
+        e.preventDefault(); // disable command history for simplicity
+      }
+    });
+
+    // Initial message
+    writeLine("Welcome to the Hacking Terminal.");
+    writeLine("Type 'help' for a list of commands.\n");
+  })();
+</script>
+</body>
+</html>
+</content>
+</create_file>
